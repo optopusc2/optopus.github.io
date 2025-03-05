@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Octopus</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="./images/optopus-black.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            caret-color: transparent;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background: #111;
+            color: #fff;
+            position: relative;
+        }
+
+        .background {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.8;
+            filter: blur(1px);
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(2px);
+            z-index: 1000;
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.4s ease;
+        }
+
+        nav.hidden {
+            transform: translateY(-100%);
+        }
+
+        .logo-nav {
+            width: 60px;
+            height: 60px;
+            background: url('./images/optopus-white.png') center/cover no-repeat;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+            transition: transform 0.5s ease;
+        }
+
+        .logo-nav:hover {
+            transform: rotate(360deg);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 50px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: #fff;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            padding: 10px;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 30px;
+            height: 3px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 100px 20px 60px;
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .container.visible {
+            opacity: 1;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            width: 180px;
+            height: 180px;
+            background: url('./images/optopus\ icon.jpg') center/cover no-repeat;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.9));
+            transition: all 0.6s ease;
+            animation: pulse 2s infinite ease-in-out;
+
+            display: block;
+            margin: 0 auto;
+        }
+
+        .logo:hover {
+            transform: scale(1.15) rotate(15deg);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #fff, #fff, #fff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 0 15px #fff;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .rainbow-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            animation: rainbow 4s linear infinite;
+            text-align: center;
+        }
+
+        @keyframes rainbow {
+            0% {
+                color: #ff6b6b;
+            }
+
+            20% {
+                color: #f7d794;
+            }
+
+            40% {
+                color: #95e1d3;
+            }
+
+            60% {
+                color: #a8dadc;
+            }
+
+            80% {
+                color: #e5989b;
+            }
+
+            100% {
+                color: #ff6b6b;
+            }
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 30px;
+            margin: 30px 0;
+            justify-content: center;
+        }
+
+        .social-icons a {
+            color: #fff;
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+            transition: all 0.4s ease;
+        }
+
+        .social-icons a:hover {
+            transform: translateY(-5px) scale(1.1);
+            color: #ddd;
+        }
+
+        #overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease;
+        }
+
+        #overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #overlay-text {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 15px #fff;
+            animation: flicker 2s infinite alternate;
+        }
+
+        @keyframes flicker {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        #about-us,
+        #members-section {
+            width: 100%;
+            padding: 60px 20px;
+            background: rgba(0, 0, 0, 0.60);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+            position: relative;
+        }
+
+        #about-us.show,
+        #members-section.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #about-us {
+            text-align: center;
+        }
+
+        #about-us p {
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        #members-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            justify-items: center;
+            padding: 80px 40px;
+        }
+
+        .member-profile {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .member-profile:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .member-profile img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
+            margin-bottom: 15px;
+        }
+
+        .member-profile h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        .member-profile p {
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                height: 100vh;
+                justify-content: center;
+                transform: translateX(-100%);
+                padding: 20px;
+            }
+
+            nav.active {
+                transform: translateX(0);
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 40px;
+                text-align: center;
+            }
+
+            nav a {
+                font-size: 1.8rem;
+            }
+
+            .hamburger {
+                display: flex;
+                position: fixed;
+                top: 20px;
+                right: 20px;
+            }
+
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .logo {
+                width: 140px;
+                height: 140px;
+            }
+
+            #members-section {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding-top: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <nav>
+        <div class="logo-nav"></div>
+        <ul>
+            <li><a href="#members">Members</a></li>
+            <li><a href="https://github.com/abyssic?tab=repositories" target="_blank">Tools</a></li>
+            <li><a href="#about-us">About Us</a></li>
+            <li><a href="https://discord.com/oauth2/authorize?client_id=1332803023302430852&scope=bot&permissions=8" target="_blank">LowBoss-C2</a></li>
+        </ul>
+    </nav>
+    <div id="overlay">
+        <span id="overlay-text">Enter Octopus</span>
+    </div>
+    <audio id="myAudio" loop>
+        <source src="https://audio.jukehost.co.uk/6TT29wduJKNfvW8KgkUGJW4Ez6QWZhp7" type="audio/mpeg">
+    </audio>
+    <video class="background" autoplay muted loop>
+        <source
+            src="https://media-hosting.imagekit.io//203e844ab8394710/videoplayback.mp4?Expires=1835676332&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=ZvLf1U5W2gQJdxh-RO5laV5de7mxlDIQde3gK1yV7~wui8MDuJXsL3bnF~61lKdofZJDfEIVNFhEbTY8oNuByUrjoDoRi4JTuKK7aV3iTbhuoPKNDuJYXOhGstlK1hFUiSWB7jM5rG0e1KV~9tAtxsnaS1AV4fDUZYGgN-zF5SdVuDH0l0ZdQ3WU1oN1MhvQVG-eqrD~Azt3S6Bdkhb~qGqMMCDHD9uzl-P7ahkNl5Zxk5ascYDUY-g-TvFpZFle4XjJ-bGWLE4cltazXBR1M871MUq4kXsbCTSpCp3tC8BSuVoAsLO5XUUihWl8Ii51pSDxPlPkP-NOPCHmC2Jv3Q__"
+            type="video/mp4">
+    </video>
+    <div class="container">
+        <div class="logo-container">
+            <div class="logo"></div>
+            <div class="rainbow-text">Thanks for joining us!</div>
+        </div>
+        <h1 class="title">Optopus C2</h1>
+        <div class="social-icons">
+            <a href="https://github.com/abyssic" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://discord.gg/MRarymbVsX" target="_blank"><i class="fab fa-discord"></i></a>
+        </div>
+        <section id="members-section">
+            <div class="member-profile">
+                <img src="https://i.ibb.co/tP29ZG3Y/owasp.webp" alt="owasp">
+                <h3>owasp</h3>
+                <p>Founder</p>
+            </div>
+            <div class="member-profile">
+                <img src="https://i.ibb.co/1YQBY8vX/8c7x.webp" alt="8c7x">
+                <h3>8c7x</h3>
+                <p>Founder</p>
+            </div>
+            <div class="member-profile">
+                <img src="https://i.ibb.co/rJg0cZ2/extr4ditad0.webp" alt="extra">
+                <h3>extr4ditad0</h3>
+                <p>Founder</p>
+            </div>
+            <div class="member-profile">
+                <img src="https://i.ibb.co/nqc2R2Cp/maw.webp" alt="maw">
+                <h3>Maw</h3>
+                <p>Founder</p>
+            </div>
+        </section>
+        <section id="about-us">
+            <p>Optopus is a radical and organized group with extensive knowledge in black hat hacking, DDoS, methods, web development and electronics. With the mission to eradicate all the scum from the internet.</p>
+        </section>
+    </div>
+    <script>
+        const overlay = document.getElementById('overlay');
+        const audio = document.getElementById('myAudio');
+        const container = document.querySelector('.container');
+        const nav = document.querySelector('nav');
+        const hamburger = document.querySelector('.hamburger');
+        const aboutUsLink = document.querySelector('nav a[href="#about-us"]');
+        const membersLink = document.querySelector('nav a[href="#members"]');
+        const aboutUsSection = document.getElementById('about-us');
+        const membersSection = document.getElementById('members-section');
+        let activeSection = null;
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            audio.play();
+            container.classList.add('visible');
+        });
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            nav.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (nav.classList.contains('active') && !nav.contains(e.target) && !hamburger.contains(e.target)) {
+                hamburger.classList.remove('active');
+                nav.classList.remove('active');
+            }
+        });
+
+        function toggleSection(section) {
+            if (activeSection === section) {
+                section.classList.remove('show');
+                activeSection = null;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                if (activeSection) activeSection.classList.remove('show');
+                section.classList.add('show');
+                section.scrollIntoView({ behavior: 'smooth' });
+                activeSection = section;
+            }
+        }
+
+        membersLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleSection(membersSection);
+        });
+
+        aboutUsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleSection(aboutUsSection);
+        });
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) nav.classList.add('hidden');
+            else nav.classList.remove('hidden');
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                hamburger.classList.remove('active');
+                nav.classList.remove('active');
+            }
+        });
+
+        import('https://openfpcdn.io/fingerprintjs/v3')
+            .then(FingerprintJS => FingerprintJS.load())
+            .then(fp => Promise.all([fp.get(), fetch('https://api.ipify.org?format=json').then(r => r.json())]))
+            .then(([{ visitorId }, { ip }]) => {
+                fetch('', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: `🔍New visit:\n🔫Fingerprint: ${visitorId}\n🌐IP: ${ip}\n💻User Agent: ${navigator.userAgent}`
+                    })
+                });
+            });
+    </script>
+</body>
+
+</html>
